@@ -1,7 +1,6 @@
 from wtforms import validators, fields
 from wtforms.form import Form, FormMeta
 
-
 class DocumentFieldConverter(object):
     """
     Convert the given ``document_class`` into WTForm fields.
@@ -297,11 +296,15 @@ class DocumentFormMetaClassBase(type):
     def __new__(cls, name, bases, attrs):
         if 'Meta' in attrs:
             document_class = attrs['Meta'].document_class
-            fields = getattr(attrs['Meta'], 'fields', None)
+            meta_fields = getattr(attrs['Meta'], 'fields', None)
             exclude = getattr(attrs['Meta'], 'exclude', None)
 
-            converter = DocumentFieldConverter(document_class, fields, exclude)
+            predefined_fields = ((n, f) for n, f in attrs.iteritems() if \
+                    isinstance(f, fields.core.UnboundField))
+            converter = DocumentFieldConverter(document_class, meta_fields,
+                    exclude)
             attrs = converter.fields
+            attrs.update(dict(predefined_fields))
 
         return super(
             DocumentFormMetaClassBase, cls).__new__(cls, name, bases, attrs)
