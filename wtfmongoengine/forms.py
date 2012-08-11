@@ -76,6 +76,8 @@ class DocumentFieldConverter(object):
 
         if document_field.required:
             kwargs['validators'].append(validators.Required())
+        else:
+            kwargs['validators'].append(validators.Optional())
 
         if document_field.choices:
             kwargs['choices'] = document_field.choices
@@ -294,20 +296,21 @@ class DocumentFormMetaClassBase(type):
     Meta-class for generating the actual WTForms class.
     """
     def __new__(cls, name, bases, attrs):
+        document_class = None
         if 'Meta' in attrs:
             document_class = attrs['Meta'].document_class
             meta_fields = getattr(attrs['Meta'], 'fields', None)
             exclude = getattr(attrs['Meta'], 'exclude', None)
 
-            predefined_fields = ((n, f) for n, f in attrs.iteritems() if \
-                    isinstance(f, fields.core.UnboundField))
             converter = DocumentFieldConverter(document_class, meta_fields,
                     exclude)
-            attrs = converter.fields
-            attrs.update(dict(predefined_fields))
+            attrs.update(converter.fields)
 
-        return super(
+        _cls = super(
             DocumentFormMetaClassBase, cls).__new__(cls, name, bases, attrs)
+        if document_class:
+            _cls.document_class = document_class
+        return _cls
 
 
 class DocumentFormMetaClass(DocumentFormMetaClassBase, FormMeta):
@@ -356,3 +359,4 @@ class DocumentForm(Form):
 
     """
     __metaclass__ = DocumentFormMetaClass
+
