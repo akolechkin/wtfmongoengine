@@ -1,5 +1,6 @@
 from wtforms import validators, fields
-from wtforms.form import Form, FormMeta
+from wtforms.form import FormMeta
+from wtforms.ext.i18n.form import Form
 
 class DocumentFieldConverter(object):
     """
