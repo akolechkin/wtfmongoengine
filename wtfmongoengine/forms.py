@@ -81,7 +81,7 @@ class DocumentFieldConverter(object):
             kwargs['validators'].append(validators.Optional())
 
         if document_field.choices:
-            kwargs['choices'] = ((unicode(k), v) for k, v in document_field.choices)
+            kwargs['choices'] = ((unicode(k), v) for k, v in document_field.choices.items())
             return fields.SelectField(**kwargs)
 
         document_field_type = type(document_field).__name__
