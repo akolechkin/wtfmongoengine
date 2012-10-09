@@ -302,8 +302,9 @@ class DocumentFormMetaClassBase(type):
             document_class = attrs['Meta'].document_class
             meta_fields = getattr(attrs['Meta'], 'fields', None)
             exclude = getattr(attrs['Meta'], 'exclude', None)
-
-            converter = DocumentFieldConverter(document_class, meta_fields,
+            converter_cls = getattr(attrs['Meta'], 'converter_cls',
+                    DocumentFieldConverter)
+            converter = converter_cls(document_class, meta_fields,
                     exclude)
             attrs.update(converter.fields)
 
